@@ -51,11 +51,32 @@ export function fireShot(matchId: string, userId: string, targetId: string, coor
 }
 
 export function createPrivateRoom(userId: string, username: string): void {
+  console.log("🔌 createPrivateRoom called with:", { userId, username });
   const sock = connectSocket();
-  sock.emit("room:create", { userId, username });
+  console.log("🔌 Socket connected:", sock.connected);
+
+  // Wait for connection before emitting
+  if (!sock.connected) {
+    console.log("🔌 Waiting for socket to connect...");
+    sock.once("connect", () => {
+      console.log("🔌 Socket connected! Now emitting room:create event");
+      sock.emit("room:create", { userId, username });
+    });
+  } else {
+    console.log("🔌 Emitting room:create event");
+    sock.emit("room:create", { userId, username });
+  }
 }
 
 export function joinPrivateRoom(userId: string, username: string, roomCode: string): void {
   const sock = connectSocket();
-  sock.emit("room:join", { userId, username, roomCode });
+
+  // Wait for connection before emitting
+  if (!sock.connected) {
+    sock.once("connect", () => {
+      sock.emit("room:join", { userId, username, roomCode });
+    });
+  } else {
+    sock.emit("room:join", { userId, username, roomCode });
+  }
 }

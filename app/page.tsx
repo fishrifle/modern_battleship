@@ -79,11 +79,13 @@ export default function Home() {
   };
 
   const handleCreateRoom = () => {
+    console.log("🎮 handleCreateRoom called");
     if (!username.trim()) {
       alert("Please enter a username");
       return;
     }
 
+    console.log("🎮 Creating room for:", username, "userId:", userId);
     localStorage.setItem("username", username);
     setIsSearching(true);
     createPrivateRoom(userId, username);
@@ -120,7 +122,30 @@ export default function Home() {
           Command Your Fleet. Dominate The Seas.
         </p>
 
-        {isSearching ? (
+        {createdRoomCode ? (
+          <div className="bg-slate-900 p-8 rounded-lg border border-slate-700 space-y-4">
+            <h2 className="text-2xl font-bold text-green-400">Room Created!</h2>
+            <p className="text-gray-300">Share this code with your friend:</p>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-2xl font-mono font-bold text-blue-300">
+                {createdRoomCode}
+              </div>
+              <button
+                onClick={handleCopyCode}
+                className="px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-all"
+              >
+                📋 Copy
+              </button>
+            </div>
+            <p className="text-sm text-gray-500">Waiting for your friend to join...</p>
+            <button
+              onClick={() => setCreatedRoomCode("")}
+              className="text-sm text-gray-500 hover:text-gray-300"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : isSearching ? (
           <div className="bg-slate-900 p-8 rounded-lg border border-slate-700">
             <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
             <p className="text-lg text-gray-300">Finding opponent...</p>
@@ -130,6 +155,53 @@ export default function Home() {
             >
               Cancel
             </button>
+          </div>
+        ) : showJoinRoom ? (
+          <div className="bg-slate-900 p-8 rounded-lg border border-slate-700 space-y-6">
+            <h2 className="text-2xl font-bold">Join Friend's Room</h2>
+
+            <div>
+              <label className="block text-left text-sm font-semibold text-gray-300 mb-2">
+                Admiral Name
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-4 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                placeholder="Enter your name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-left text-sm font-semibold text-gray-300 mb-2">
+                Room Code
+              </label>
+              <input
+                type="text"
+                value={roomCodeInput}
+                onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
+                className="w-full px-4 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white font-mono text-xl text-center focus:border-blue-500 focus:outline-none"
+                placeholder="ABC123"
+                maxLength={6}
+              />
+            </div>
+
+            <div className="space-y-3">
+              <button
+                onClick={handleJoinRoom}
+                className="w-full px-8 py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold transition-all transform hover:scale-105"
+              >
+                Join Room
+              </button>
+
+              <button
+                onClick={() => setShowJoinRoom(false)}
+                className="w-full px-8 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition-all"
+              >
+                Back
+              </button>
+            </div>
           </div>
         ) : (
           <div className="bg-slate-900 p-8 rounded-lg border border-slate-700 space-y-6">
@@ -159,6 +231,20 @@ export default function Home() {
                 className="w-full px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold transition-all transform hover:scale-105"
               >
                 ⚔️ Find Match
+              </button>
+
+              <button
+                onClick={handleCreateRoom}
+                className="w-full px-8 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold transition-all transform hover:scale-105"
+              >
+                👥 Play with Friend
+              </button>
+
+              <button
+                onClick={() => setShowJoinRoom(true)}
+                className="w-full px-8 py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold transition-all transform hover:scale-105"
+              >
+                🔗 Join Room
               </button>
 
               <button

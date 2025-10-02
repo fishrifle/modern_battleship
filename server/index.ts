@@ -134,8 +134,10 @@ io.on("connection", (socket: Socket) => {
 
   // Create private room
   socket.on("room:create", ({ userId, username }: { userId: string; username: string }) => {
+    console.log(`🎲 room:create event received from ${username} (${userId})`);
     const matchId = `match_${Date.now()}_${Math.random()}`;
     const roomCode = generateRoomCode();
+    console.log(`🎲 Generated room code: ${roomCode}`);
 
     const room: MatchRoom = {
       id: matchId,
@@ -154,8 +156,9 @@ io.on("connection", (socket: Socket) => {
     roomCodeMap.set(roomCode, matchId);
     socket.join(matchId);
 
+    console.log(`🎲 Emitting room:created event with code ${roomCode}`);
     socket.emit("room:created", { matchId, roomCode });
-    console.log(`Created private room: ${roomCode} (${matchId})`);
+    console.log(`✅ Created private room: ${roomCode} (${matchId})`);
   });
 
   // Join private room
@@ -429,8 +432,34 @@ function getPublicGameState(room: MatchRoom, forPlayerId: string): any {
   };
 }
 
-const PORT = process.env.SOCKET_PORT || 8080;
+// Find available port in range 8080-8085
+async function findPort(start: number, end: number): Promise<number> {
+  const net = await import('net');
 
-httpServer.listen(PORT, () => {
-  console.log(`✅ Socket.IO server running on port ${PORT}`);
+  for (let port = start; port <= end; port++) {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const server = net.createServer();
+        server.once('error', reject);
+        server.once('listening', () => {
+          server.close();
+          resolve();
+        });
+        server.listen(port);
+      });
+      return port;
+    } catch {
+      continue;
+    }
+  }
+  throw new Error(`No available ports in range ${start}-${end}`);
+}
+
+findPort(8080, 8085).then(PORT => {
+  httpServer.listen(PORT, () => {
+    console.log(`✅ Socket.IO server running on port ${PORT}`);
+  });
+}).catch(err => {
+  console.error('Failed to find available port:', err);
+  process.exit(1);
 });
