@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String?  @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  stats     Stat?
+  matches   Match[]  @relation("MatchPlayers")
+}
+
+model Stat {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  wins       Int      @default(0)
+  losses     Int      @default(0)
+  draws      Int      @default(0)
+  streak     Int      @default(0)
+  country    String   @default("USA")
+  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Match {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  status      String   @default("waiting") // waiting|active|finished
+  playerIds   String   // JSON array of player IDs
+  winnerId    String?
+  log         String   // JSON log of moves, hits, sinks
+  boardSize   Int      @default(10)
+  countries   String   // JSON array of country codes
+  players     User[]   @relation("MatchPlayers")
+}
