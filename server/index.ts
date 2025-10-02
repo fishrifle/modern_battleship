@@ -27,10 +27,23 @@ interface MatchRoom {
   winnerId?: string;
   boardSize: number;
   aiInstances: Map<string, BattleshipAI>;
+  roomCode?: string; // For private rooms
+  isPrivate?: boolean;
 }
 
 const queue: Array<{ userId: string; username: string; socketId: string }> = [];
 const rooms = new Map<string, MatchRoom>();
+const roomCodeMap = new Map<string, string>(); // roomCode -> matchId
+
+// Generate 6-character room code
+function generateRoomCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Avoid confusing chars
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
 
 io.on("connection", (socket: Socket) => {
   console.log(`Socket connected: ${socket.id}`);
@@ -117,6 +130,76 @@ io.on("connection", (socket: Socket) => {
         socket.emit("queue:waiting", { queueSize: queue.length });
       }
     }
+  });
+
+  // Create private room
+  socket.on("room:create", ({ userId, username }: { userId: string; username: string }) => {
+    const matchId = `match_${Date.now()}_${Math.random()}`;
+    const roomCode = generateRoomCode();
+
+    const room: MatchRoom = {
+      id: matchId,
+      players: [
+        { id: userId, username, country: "USA", ready: false },
+      ],
+      currentTurnIndex: 0,
+      status: "waiting",
+      boardSize: 10,
+      aiInstances: new Map(),
+      roomCode,
+      isPrivate: true,
+    };
+
+    rooms.set(matchId, room);
+    roomCodeMap.set(roomCode, matchId);
+    socket.join(matchId);
+
+    socket.emit("room:created", { matchId, roomCode });
+    console.log(`Created private room: ${roomCode} (${matchId})`);
+  });
+
+  // Join private room
+  socket.on("room:join", ({ userId, username, roomCode }: {
+    userId: string;
+    username: string;
+    roomCode: string;
+  }) => {
+    const matchId = roomCodeMap.get(roomCode.toUpperCase());
+
+    if (!matchId) {
+      socket.emit("error", { code: "ROOM_NOT_FOUND", message: "Room code not found" });
+      return;
+    }
+
+    const room = rooms.get(matchId);
+    if (!room) {
+      socket.emit("error", { code: "ROOM_NOT_FOUND", message: "Room not found" });
+      return;
+    }
+
+    if (room.players.length >= 2) {
+      socket.emit("error", { code: "ROOM_FULL", message: "Room is full" });
+      return;
+    }
+
+    if (room.status !== "waiting") {
+      socket.emit("error", { code: "ROOM_STARTED", message: "Game already started" });
+      return;
+    }
+
+    // Add player to room
+    room.players.push({ id: userId, username, country: "UK", ready: false });
+    socket.join(matchId);
+
+    // Notify both players
+    io.to(matchId).emit("match:found", {
+      matchId,
+      roomCode,
+      opponent: room.players[0].id === userId ? room.players[1] : room.players[0],
+      youAre: room.players[0].id === userId ? "P1" : "P2",
+    });
+
+    console.log(`${username} joined private room: ${roomCode}`);
   });
 
   // Leave queue
