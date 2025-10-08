@@ -1,29 +1,63 @@
 # ⚓ Modern Battleship
 
-A modern, real-time multiplayer naval warfare strategy game featuring authentic warships from 15 nations.
+A modern, real-time naval warfare strategy game featuring authentic warships from 15 nations. Built with Next.js 15, TypeScript, and Tailwind CSS.
 
-## 🚀 Features (In Progress)
+![Modern Battleship](https://i.redd.it/1zv50khhm0ia1.png)
+
+## 🚀 Features
 
 ### ✅ Completed
-- [x] Next.js 15 + TypeScript + Tailwind CSS setup
-- [x] Prisma database schema (SQLite)
-- [x] 15 real navies with authentic vessels (USA, UK, France, Japan, India, China, Russia, South Korea, Italy, Spain, Germany, Australia, Canada, Turkey, Brazil)
-- [x] Core game logic (coordinate system, ship placement validation)
-- [x] AI opponent with Hunt/Target algorithm
-- [x] Socket.IO server with PvP and PvC matchmaking
-- [x] Real-time game state synchronization
+- **Next.js 15 + TypeScript + Tailwind CSS** - Modern tech stack
+- **Offline AI Mode** - Play against intelligent AI opponent
+- **15 Real Navies** - Authentic vessels from USA, UK, France, Japan, India, China, Russia, South Korea, Italy, Spain, Germany, Australia, Canada, Turkey, Brazil
+- **Manual Ship Placement** - Click to select, rotate, and place ships on grid
+- **Hover Preview** - See ship placement before confirming
+- **Realistic Ship Visuals** - Naval-styled ship pieces with bow/stern indicators
+- **Smart AI Opponent** - Hunt/Target algorithm with parity optimization
+- **Turn-Based Gameplay** - Player fires → AI fires → Player fires
+- **Hit/Miss Detection** - Visual feedback with 💥 for hits, ○ for misses
+- **Ship Sinking** - Automatic detection with ☠️ indicator
+- **Win/Lose Screens** - Epic victory/defeat screens
+- **Random Placement** - Quick ship deployment option
+- **Beautiful UI** - Naval warfare themed with background and animations
 
-### 🚧 In Progress
-- [ ] Board UI component with A-J/1-10 coordinate labels
-- [ ] Ship placement screen (manual drag-drop + random)
-- [ ] Game UI with coordinate callout (type "C11" to fire)
-- [ ] Authentication (Clerk or Supabase)
-- [ ] Stats tracking and leaderboard
-- [ ] Ship graphics/sprites
+## 🎮 How to Play
 
-## 🎮 Gameplay
+### 1. Deploy Your Fleet
+- **Select a ship** from the left panel
+- **Rotate** using the 🔄 button (horizontal/vertical)
+- **Hover** over the grid to preview placement
+- **Click** on the grid to place the ship
+- Repeat for all 5 ships, or use **🎲 Random** for quick setup
+- Click **✓ Start Battle** when ready
 
-### Classic Battleship Rules
+### 2. Battle Phase
+- **Click on opponent's grid** to fire shots
+- **AI fires back** automatically after each turn
+- **💥 = Hit**, **○ = Miss**, **☠️ = Ship Sunk**
+- **Sink all enemy ships** to win!
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS
+- **Game Logic**: Custom battleship engine with AI
+- **Deployment**: Vercel
+
+## 📦 Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to play!
+
+## 🎯 Game Rules
+
+### Classic Battleship
 - **Grid**: 10×10 (A-J columns, 1-10 rows)
 - **Fleet**: 5 ships per player
   - Carrier (5 cells)
@@ -33,40 +67,14 @@ A modern, real-time multiplayer naval warfare strategy game featuring authentic 
   - Destroyer (2 cells)
 - **Win Condition**: Sink all enemy ships
 
-### Game Modes
-- **PvP**: Play against friends anywhere in the world
-- **PvC**: Play against AI opponent
+### AI Behavior
+- **Hunt Mode**: Checkerboard pattern for efficiency
+- **Target Mode**: After hit, searches adjacent cells
+- **Smart Targeting**: Eliminates impossible shots
 
-### Coordinate System
-- Call out shots like real battleship: **"C11"**, **"B5"**, **"J10"**
-- Click cells or type coordinates
+## 🌍 Available Navies
 
-## 🛠️ Tech Stack
-
-- **Frontend**: Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS
-- **Backend**: Node.js + Socket.IO
-- **Database**: Prisma + SQLite (easily upgradable to PostgreSQL)
-- **Auth**: Clerk or Supabase (TBD)
-- **Deployment**: Vercel (frontend) + Railway/Render (Socket.IO server)
-
-## 📦 Installation
-
-```bash
-# Install dependencies
-npm install
-
-# Set up database
-npx prisma generate
-npx prisma db push
-
-# Run development servers
-npm run dev          # Next.js (port 3000)
-npm run server       # Socket.IO (port 8080)
-```
-
-## 🌍 Navies & Ships
-
-Each of the 15 nations has authentic, commissioned vessels:
+Each nation features authentic, commissioned vessels:
 
 ### 🇺🇸 United States
 - USS Gerald R. Ford (CVN-78) - Ford-class carrier
@@ -84,51 +92,46 @@ Each of the 15 nations has authentic, commissioned vessels:
 
 ...and 13 more navies! See `lib/fleets.ts` for the complete list.
 
-## 🎯 Next Steps
-
-1. **Install dependencies**: `npm install`
-2. **Build Board component** with labeled grid (A-J, 1-10)
-3. **Create ship placement UI** with drag-drop
-4. **Implement game screen** with your board + opponent mini-board
-5. **Add authentication** for persistent accounts
-6. **Deploy to internet** so friends can play from anywhere
-
 ## 🗂️ Project Structure
 
 ```
 modern_battleship/
-├── app/                # Next.js App Router pages
-│   ├── page.tsx       # Landing/lobby
-│   ├── game/[id]/     # Game screen
+├── app/                    # Next.js App Router pages
+│   ├── page.tsx           # Landing/lobby
+│   ├── game/[matchId]/    # Game screen
 │   └── globals.css
-├── components/         # React components
-│   ├── Board.tsx      # Game board with coordinates
-│   ├── ShipTray.tsx   # Ship placement UI
-│   └── ...
-├── lib/               # Core logic
-│   ├── game.ts        # Game rules, validation
-│   ├── ai.ts          # AI opponent logic
-│   ├── fleets.ts      # 15 navies + ships data
-│   └── types.ts       # TypeScript interfaces
-├── server/            # Socket.IO server
-│   └── index.ts
-├── prisma/            # Database schema
-│   └── schema.prisma
-└── public/            # Static assets (ship sprites)
+├── components/            # React components
+│   ├── Board.tsx         # Game board with coordinates
+│   ├── ShipTray.tsx      # Ship selection UI
+│   ├── OpponentMini.tsx  # Opponent board preview
+│   └── HUD.tsx           # Game HUD
+├── lib/                  # Core logic
+│   ├── game.ts          # Game rules, validation
+│   ├── ai.ts            # AI opponent logic
+│   ├── fleets.ts        # 15 navies + ships data
+│   └── types.ts         # TypeScript interfaces
+└── public/              # Static assets
+
 ```
 
-## 🔗 Socket.IO Events
+## 🚢 Ship Placement Controls
 
-### Client → Server
-- `match:queue` - Join matchmaking (PvP or PvC)
-- `match:place` - Submit ship placement
-- `match:fire` - Fire at coordinate
+- **Click ship** → Select for placement
+- **🔄 Rotate** → Toggle horizontal/vertical
+- **Hover grid** → Preview placement (cyan glow)
+- **Click grid** → Place ship
+- **🎲 Random** → Auto-place all ships
+- **Clear** → Remove all ships and start over
 
-### Server → Client
-- `match:found` - Match created
-- `match:state` - Game state update
-- `shot:result` - Shot result (hit/miss/sunk)
-- `match:finished` - Game over
+## 🎨 Visual Features
+
+- **Naval warfare background** - Epic battleship scene
+- **Realistic ship pieces** - Metal hull with deck details
+- **Bow/stern indicators** - Arrow shows ship direction
+- **Hover previews** - Cyan highlight before placement
+- **Hit animations** - 💥 explosion effects
+- **Sunk ships** - ☠️ skull markers
+- **Gradient UI** - Glowing borders and shadows
 
 ## 📝 License
 
@@ -136,6 +139,8 @@ MIT
 
 ---
 
-**Status**: 🏗️ Under active development
+**Status**: ✅ Fully Playable
 
-**Current Phase**: Core architecture complete, building UI components next
+**Current Version**: 1.0.0
+
+**Play Now**: [Modern Battleship](https://modern-battleship.vercel.app)

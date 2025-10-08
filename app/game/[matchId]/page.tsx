@@ -95,6 +95,7 @@ export default function GamePage() {
         id: matchId,
         status: "placing",
         currentTurn: userId,
+        boardSize: 10,
         players: [
           { id: userId, username, country, ready: false },
           { id: "ai_opponent", username: "AI Commander", country: "Russia", ready: false, isBot: true }
@@ -263,20 +264,48 @@ export default function GamePage() {
   if (winner) {
     const isWinner = gameState?.players.find(p => p.id === myPlayerId)?.username === winner;
     return (
-      <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-8">
-        <div className="text-center">
-          <h1 className={`text-6xl font-bold mb-4 ${isWinner ? "text-green-400" : "text-red-400"}`}>
-            {isWinner ? "🎉 VICTORY!" : "💥 DEFEAT"}
+      <main
+        className="min-h-screen flex items-center justify-center p-8 relative overflow-hidden"
+        style={{backgroundImage: 'url(https://i.redd.it/1zv50khhm0ia1.png)', backgroundSize: 'cover', backgroundPosition: 'center'}}
+      >
+        <div className="absolute inset-0 bg-black/70"></div>
+
+        <div className="text-center relative z-10 max-w-2xl">
+          <div className={`text-8xl mb-6 animate-bounce ${isWinner ? "" : "animate-pulse"}`}>
+            {isWinner ? "🎉" : "💥"}
+          </div>
+
+          <h1 className={`text-7xl font-black mb-6 tracking-tight ${
+            isWinner
+              ? "text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400 drop-shadow-[0_0_40px_rgba(74,222,128,0.5)]"
+              : "text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400 drop-shadow-[0_0_40px_rgba(248,113,113,0.5)]"
+          }`}>
+            {isWinner ? "VICTORY!" : "DEFEAT"}
           </h1>
-          <p className="text-2xl text-gray-300 mb-8">
-            {winner} wins the battle!
-          </p>
-          <button
-            onClick={() => router.push("/")}
-            className="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold transition-all"
-          >
-            Return to Lobby
-          </button>
+
+          <div className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl p-8 rounded-2xl border-2 border-blue-500/40 shadow-[0_0_60px_rgba(59,130,246,0.3)] mb-8">
+            <p className="text-3xl font-bold text-cyan-400 mb-2">
+              {winner}
+            </p>
+            <p className="text-xl text-gray-300">
+              {isWinner ? "Dominated the seas!" : "Sank your fleet!"}
+            </p>
+          </div>
+
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={() => router.push("/")}
+              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 rounded-xl text-white text-lg font-bold transition-all transform hover:scale-105 shadow-[0_0_30px_rgba(59,130,246,0.4)]"
+            >
+              ⚓ New Battle
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-8 py-4 bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 rounded-xl text-white text-lg font-bold transition-all transform hover:scale-105"
+            >
+              🔄 Play Again
+            </button>
+          </div>
         </div>
       </main>
     );
