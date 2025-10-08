@@ -63,8 +63,12 @@ export default function Home() {
     }
 
     localStorage.setItem("username", username);
-    setIsSearching(true);
-    joinQueue(userId, username, false);
+    localStorage.setItem("selectedCountry", country);
+    localStorage.setItem("gameMode", "offline"); // Flag for offline mode
+
+    // Generate a simple match ID and go straight to game
+    const matchId = `offline_${Date.now()}`;
+    router.push(`/game/${matchId}`);
   };
 
   const handlePlayAI = () => {
@@ -113,14 +117,27 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-8">
-      <div className="text-center max-w-md w-full">
-        <h1 className="text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">
-          ⚓ Modern Battleship
-        </h1>
-        <p className="text-xl text-gray-300 mb-8">
-          Command Your Fleet. Dominate The Seas.
-        </p>
+    <main className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{backgroundImage: 'url(https://i.redd.it/1zv50khhm0ia1.png)'}}
+      ></div>
+
+      {/* Dark overlay for better text readability */}
+      <div className="absolute inset-0 bg-black/50"></div>
+
+      {/* Grid overlay */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSg1OSwxMzAsMjQ2LDAuMTUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
+
+      <div className="text-center max-w-lg w-full relative z-10">
+        <div className="mb-6">
+          <div className="text-6xl mb-3 drop-shadow-[0_0_20px_rgba(59,130,246,0.6)] animate-pulse">⚓</div>
+          <h1 className="text-5xl sm:text-6xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 drop-shadow-[0_0_30px_rgba(59,130,246,0.4)] tracking-tight">
+            BATTLESHIP
+          </h1>
+          <p className="text-lg sm:text-xl font-semibold text-cyan-400 tracking-wider">NAVAL WARFARE</p>
+        </div>
 
         {createdRoomCode ? (
           <div className="bg-slate-900 p-8 rounded-lg border border-slate-700 space-y-4">
@@ -146,14 +163,18 @@ export default function Home() {
             </button>
           </div>
         ) : isSearching ? (
-          <div className="bg-slate-900 p-8 rounded-lg border border-slate-700">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-lg text-gray-300">Finding opponent...</p>
+          <div className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl p-8 rounded-2xl border-2 border-blue-500/40 shadow-[0_0_60px_rgba(59,130,246,0.4)]">
+            <div className="relative mb-4">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-cyan-400 mx-auto shadow-[0_0_20px_rgba(34,211,238,0.6)]"></div>
+              <div className="absolute inset-0 animate-ping rounded-full h-16 w-16 border-2 border-blue-400 mx-auto opacity-20"></div>
+            </div>
+            <p className="text-xl font-bold text-cyan-300 mb-1">Preparing Battle...</p>
+            <p className="text-xs text-gray-400 mb-4">Deploying naval forces</p>
             <button
               onClick={() => setIsSearching(false)}
-              className="mt-4 text-sm text-gray-500 hover:text-gray-300"
+              className="text-xs text-gray-500 hover:text-cyan-400 transition-colors font-semibold"
             >
-              Cancel
+              Cancel Mission
             </button>
           </div>
         ) : showJoinRoom ? (
@@ -204,54 +225,37 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <div className="bg-slate-900 p-8 rounded-lg border border-slate-700 space-y-6">
+          <div className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border-2 border-blue-500/40 shadow-[0_0_60px_rgba(59,130,246,0.3)] space-y-5">
             <div>
-              <label className="block text-left text-sm font-semibold text-gray-300 mb-2">
-                Admiral Name
+              <label className="block text-left text-xs font-bold text-cyan-400 mb-2 uppercase tracking-wider">
+                🎖️ Admiral Name
               </label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                className="w-full px-4 py-3 bg-slate-950/90 border-2 border-slate-700 rounded-lg text-white font-semibold focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all placeholder:text-gray-600"
                 placeholder="Enter your name"
               />
             </div>
 
             <div>
-              <label className="block text-left text-sm font-semibold text-gray-300 mb-2">
-                Select Your Navy
+              <label className="block text-left text-xs font-bold text-cyan-400 mb-2 uppercase tracking-wider">
+                🌍 Select Navy
               </label>
               <CountryPicker selectedCountry={country} onSelect={setCountry} />
             </div>
 
-            <div className="space-y-3 pt-4">
+            <div className="pt-2">
               <button
                 onClick={handleFindMatch}
-                className="w-full px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold transition-all transform hover:scale-105"
+                className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-500 hover:via-blue-400 hover:to-cyan-400 rounded-xl text-white text-lg font-black uppercase tracking-wide transition-all transform hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(59,130,246,0.7)] shadow-[0_0_25px_rgba(59,130,246,0.4)] relative overflow-hidden group"
               >
-                ⚔️ Find Match
-              </button>
-
-              <button
-                onClick={handleCreateRoom}
-                className="w-full px-8 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold transition-all transform hover:scale-105"
-              >
-                👥 Play with Friend
-              </button>
-
-              <button
-                onClick={() => setShowJoinRoom(true)}
-                className="w-full px-8 py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold transition-all transform hover:scale-105"
-              >
-                🔗 Join Room
-              </button>
-
-              <button
-                onClick={handlePlayAI}
-                className="w-full px-8 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition-all transform hover:scale-105"
-              >
-                🤖 Play vs AI
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  <span className="text-xl">⚔️</span>
+                  <span>Deploy Fleet</span>
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
               </button>
             </div>
           </div>
